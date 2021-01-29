@@ -5,32 +5,39 @@ import { positionTable } from './components/positionsTable/positionsTable';
 import { accountValueCard } from './components/accountValueCard/accountValueCard';
 import { orderRulesCard } from './components/orderRulesCard/orderRulesCard';
 import { OrderExecutionFeed } from './components/orderExecutionFeed/orderExecutionFeed';
-import { ProcessedOrder } from './utils/processedOrdersMessages'
-import { AccountValueChart } from './components/accountValueChart/accountValueChart'
+import { ProcessedOrder } from './utils/processedOrdersMessages';
+import { AccountValueChart } from './components/accountValueChart/accountValueChart';
+import { ConfigValues } from './utils/config';
+import { UPDATE_START_TIME, UPDATE_END_TIME } from './utils/consts';
 
-class App extends React.Component {
+const nowIsValidUpdateTime = (isProductionEnvironment: boolean) => {
+  const date = new Date()
+  const now = date.getHours() * 60 + date.getMinutes();
+  if (isProductionEnvironment) return UPDATE_START_TIME <= now && now <= UPDATE_END_TIME;
+  return true; // should be able to run updates when testing at any time
+}
+
+class App extends React.Component<{ configValues: ConfigValues },
+  { accountData: {}, previousOrderUpdateTimeStamp: number, currentOrderUpdateTimeStamp: number }> {
   updateInterval: NodeJS.Timeout;
   constructor(props) {
     super(props);
     this.updateInterval = null;
-  }
-
-  state = {
-    accountData: null,
-    previousOrderUpdateTimeStamp: 0,
-    currentOrderUpdateTimeStamp: 0
+    this.state = {
+      accountData: null,
+      previousOrderUpdateTimeStamp: 0,
+      currentOrderUpdateTimeStamp: 0
+    }
   }
 
   // fetch account data with a given interval
   componentDidMount = async () => {
+    const { configValues } = this.props;
     try {
       this.updateInterval = setInterval(async () => {
-        const startTime = 9 * 60;
-        const endTime = 16 * 60 + 30;
-        const date = new Date()
-        const now = date.getHours() * 60 + date.getMinutes();
-        if (startTime <= now && now <= endTime) {
-          const accountData = await getMostRecentAccountData('http://localhost:8080/data/account');
+        if (nowIsValidUpdateTime(configValues.isProductionEnvironment)) {
+          const accountData = await getMostRecentAccountData(configValues.accountDataApiUrl);
+          if (accountData === null) return;
           const newPreviousOrderUpdateTimeStamp = this.state.currentOrderUpdateTimeStamp;
           this.setState({
             accountData: accountData,
@@ -38,8 +45,9 @@ class App extends React.Component {
             currentOrderUpdateTimeStamp: accountData && accountData.processedOrders ? accountData.processedOrders.timestamp : 0
           });
         }
-      }, 10000);
+      }, configValues.updateInterval);
     } catch (e) {
+      console.log(e)
     }
   }
 
@@ -49,7 +57,7 @@ class App extends React.Component {
   }
 
   render() {
-    const { accountData, previousOrderUpdateTimeStamp, currentOrderUpdateTimeStamp }  = this.state;
+    const { accountData, previousOrderUpdateTimeStamp, currentOrderUpdateTimeStamp } = this.state;
     let positions = [];
     let accountValue = {};
     let timestamp;
