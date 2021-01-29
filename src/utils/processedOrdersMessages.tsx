@@ -56,6 +56,12 @@ export const isSellOrder = (order: string) => {
   return orderAction === "SELL";
 }
 
+// A check used to make sure orders from previous days are not being displayed today
+const orderFromToday = (processedOrder: ProcessedOrder) => {
+  const timestamp = processedOrder.processedTimestamp;
+  const now = new Date().toLocaleDateString();
+  return new Date(timestamp).toLocaleDateString() === now;
+ }
 
 const invalidOrderMessageStrings = (processedOrder: ProcessedOrder) => {
   const reason = processedOrder.orderValidationInfo.invalidReason;
@@ -70,6 +76,7 @@ const invalidOrderMessageStrings = (processedOrder: ProcessedOrder) => {
 }
 
 const createOrderResultMessage = (processedOrder: ProcessedOrder) => {
+  if (!processedOrder) { return '' }
   const order = processedOrder.userOrderData.order;
   const ticker = getTickerSymbolFromOrder(order);
   const quantity = getQuantityFromOrder(order);
