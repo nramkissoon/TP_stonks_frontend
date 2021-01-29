@@ -5,6 +5,9 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { ThemeProvider, createMuiTheme } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
+import { config } from './utils/config';
+
+const configValues = config();
 
 const theme = createMuiTheme({
   palette: {
@@ -20,7 +23,7 @@ ReactDOM.render(
   <React.StrictMode>
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <App />
+      <App configValues={configValues}/>
     </ThemeProvider>
   </React.StrictMode>,
   document.getElementById('root')
