@@ -2,6 +2,8 @@ import React from 'react';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 
+// TODO create cycling card with different info such as time to market open/close
+
 export const orderRulesCard = () => {
   return (
     <Card elevation={3} style={{height: '100%', overflowY: 'auto', display: 'flex', justifyContent: 'center', flexDirection: 'column'}}>
