@@ -11,6 +11,7 @@ const createLineChart = (data, lineColor) => {
         datasets: [{
           data: data,
           borderColor: lineColor,
+          pointRadius: 1,
           lineTension: 0,
         }]
       }}
@@ -61,7 +62,7 @@ const createLineChart = (data, lineColor) => {
               source: 'data',
               maxRotation: 60,
               minRotation: 60,
-              maxTicksLimit: 50,
+              maxTicksLimit: 40,
               autoSkip: true,
             }
           }]
