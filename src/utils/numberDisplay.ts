@@ -10,6 +10,6 @@ export const displayCurrency = (num: number) => {
 }
 
 export const displayTimeEST = (num: number) => {
-  if (num === null || num === undefined) return;
+  if (num === null || num === undefined) return '';
   return new Date(num).toLocaleTimeString() + ' EST';
 }
